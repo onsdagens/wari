@@ -234,6 +234,45 @@ impl From<u32> for Reg {
     }
 }
 
+impl Into<u32> for Reg {
+    fn into(self: Reg) -> u32 {
+        match self {
+            ZERO => 0,
+            RA => 1,
+            SP => 2,
+            GP => 3, 
+            TP => 4, 
+            T0 => 5,
+            T1 => 6,
+            T2 => 7,
+            S0 => 8,
+            S1 => 9,
+            A0 => 10,
+            A1 => 11, 
+            A2 => 12, 
+            A3 => 13,
+            A4 => 14,
+            A5 => 15,
+            A6 => 16,
+            A7 => 17,
+            S2 => 18,
+            S3 => 19, 
+            S4 => 20, 
+            S5 => 21,
+            S6 => 22,
+            S7 => 23,
+            S8 => 24,
+            S9 => 25,
+            S10 => 26,
+            S11 => 27, 
+            T3 => 28, 
+            T4 => 29,
+            T5 => 30,
+            T6 => 31,
+        }
+    }
+}
+
 /// An assembly instruction (im is limited to 12 bits)
 #[allow(clippy::enum_variant_names)]
 #[allow(missing_docs)]
@@ -321,6 +360,14 @@ pub enum I {
     /// I: Fence (Immediate Is Made Up Of Ordered High Order To Low Order Bits:)
     /// - fm(4), PI(1), PO(1), PR(1), PW(1), SI(1), SO(1), SR(1), SW(1)
     FENCE { im: i16 },
+
+    /// CSR
+    CSRRW {csr: i16, s1: Reg, d:Reg},
+    CSRRS {csr: i16, s1: Reg, d:Reg},
+    CSRRC {csr: i16, s1: Reg, d:Reg},
+    CSRRWI {csr: i16, zimm: i16, d:Reg},
+    CSRRSI {csr: i16, zimm: i16, d:Reg},
+    CSRRCI {csr: i16, zimm: i16, d:Reg},
     //// Multiply Extension ////
 
     //// Atomic Extension ////
@@ -516,6 +563,12 @@ impl From<I> for u32 {
             ECALL {} => I::i(0b1110011, ZERO, 0b000, ZERO, 0b000000000000),
             EBREAK {} => I::i(0b1110011, ZERO, 0b000, ZERO, 0b000000000001),
             FENCE { im } => I::i(0b0001111, ZERO, 0b000, ZERO, im),
+            CSRRW {csr, s1, d} => I::i(0b1110011, d, 0b001, s1, csr),
+            CSRRS {csr, s1, d} => I::i(0b1110011, d, 0b010, s1, csr),
+            CSRRC {csr, s1, d} => I::i(0b1110011, d, 0b011, s1, csr),
+            CSRRWI {csr, zimm, d} => I::i(0b1110011, d, 0b101, (zimm as u32).into(), csr),
+            CSRRSI {csr, zimm, d} => I::i(0b1110011, d, 0b110, (zimm as u32).into(), csr),
+            CSRRCI {csr, zimm, d} => I::i(0b1110011, d, 0b111, (zimm as u32).into(), csr),
         }
     }
 }
@@ -634,6 +687,12 @@ impl TryFrom<u32> for I {
             0b1110011 => match I::from_i(with) {
                 (ZERO, 0b000, ZERO, 0b000000000000) => ECALL {},
                 (ZERO, 0b000, ZERO, 0b000000000001) => EBREAK {},
+                (d, 0b001, s, csr) => CSRRW {csr:csr, s1: s, d:d},
+                (d, 0b010, s, csr) => CSRRS {csr:csr, s1: s, d:d},
+                (d, 0b011, s, csr) => CSRRC {csr:csr, s1: s, d:d},
+                (d, 0b101, zimm, csr) => CSRRWI {csr:csr, zimm: (<Reg as Into<u32>>::into(zimm) as i16), d:d},
+                (d, 0b110, zimm, csr) => CSRRSI {csr:csr, zimm: (<Reg as Into<u32>>::into(zimm) as i16), d:d},
+                (d, 0b111, zimm, csr) => CSRRCI {csr:csr, zimm: (<Reg as Into<u32>>::into(zimm) as i16), d:d},
                 _ => return Err(ConversionError::UnknownEnvCtrlTransfer),
             },
             o => return Err(ConversionError::UnknownOpcode(o)),
