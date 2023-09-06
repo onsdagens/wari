@@ -368,6 +368,7 @@ pub enum I {
     CSRRWI {csr: i16, zimm: i16, d:Reg},
     CSRRSI {csr: i16, zimm: i16, d:Reg},
     CSRRCI {csr: i16, zimm: i16, d:Reg},
+    MRET {},
     //// Multiply Extension ////
 
     //// Atomic Extension ////
@@ -569,6 +570,7 @@ impl From<I> for u32 {
             CSRRWI {csr, zimm, d} => I::i(0b1110011, d, 0b101, (zimm as u32).into(), csr),
             CSRRSI {csr, zimm, d} => I::i(0b1110011, d, 0b110, (zimm as u32).into(), csr),
             CSRRCI {csr, zimm, d} => I::i(0b1110011, d, 0b111, (zimm as u32).into(), csr),
+            MRET {} => I::i(0b1110011, 0.into(), 0b000, 0b00000.into(), 0b001100000010),
         }
     }
 }
@@ -687,6 +689,7 @@ impl TryFrom<u32> for I {
             0b1110011 => match I::from_i(with) {
                 (ZERO, 0b000, ZERO, 0b000000000000) => ECALL {},
                 (ZERO, 0b000, ZERO, 0b000000000001) => EBREAK {},
+                (ZERO, 0b000, ZERO, 0b001100000010) => MRET{},
                 (d, 0b001, s, csr) => CSRRW {csr:csr, s1: s, d:d},
                 (d, 0b010, s, csr) => CSRRS {csr:csr, s1: s, d:d},
                 (d, 0b011, s, csr) => CSRRC {csr:csr, s1: s, d:d},
