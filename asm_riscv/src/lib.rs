@@ -126,7 +126,7 @@ use I::*;
 
 /// A RISC-V Register
 #[repr(u8)]
-#[derive(Copy, Clone, PartialEq, Debug)]
+#[derive(Copy, Clone, PartialEq, Debug, Eq, Hash)]
 pub enum Reg {
     /// SPECIAL: Always 0
     ZERO = 0u8,
