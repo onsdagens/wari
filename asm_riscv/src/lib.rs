@@ -121,6 +121,8 @@
     variant_size_differences
 )]
 
+use core::fmt::Display;
+
 use Reg::*;
 use I::*;
 
@@ -194,6 +196,46 @@ pub enum Reg {
     T6 = 31,
 }
 
+impl Display for Reg {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        let s = match *self {
+            ZERO => "zero",
+            T0 => "t0",
+            T1 => "t1",
+            T2 => "t2",
+            T3 => "t3",
+            T4 => "t4",
+            T5 => "t5",
+            T6 => "t6",
+            A0 => "a0",
+            A1 => "a1",
+            A2 => "a2",
+            A3 => "a3",
+            A4 => "a4",
+            A5 => "a5",
+            A6 => "a6",
+            A7 => "a7",
+            S0 => "s0",
+            S1 => "s1",
+            S2 => "s2",
+            S3 => "s3",
+            S4 => "s4",
+            S5 => "s5",
+            S6 => "s6",
+            S7 => "s7",
+            S8 => "s8",
+            S9 => "s9",
+            S10 => "s10",
+            S11 => "s11",
+            TP => "tp",
+            RA => "ra",
+            SP => "sp",
+            GP => "gp",
+        };
+        write!(f, "{}", s)
+    }
+}
+
 impl From<u32> for Reg {
     fn from(reg: u32) -> Self {
         match reg {
@@ -240,32 +282,32 @@ impl Into<u32> for Reg {
             ZERO => 0,
             RA => 1,
             SP => 2,
-            GP => 3, 
-            TP => 4, 
+            GP => 3,
+            TP => 4,
             T0 => 5,
             T1 => 6,
             T2 => 7,
             S0 => 8,
             S1 => 9,
             A0 => 10,
-            A1 => 11, 
-            A2 => 12, 
+            A1 => 11,
+            A2 => 12,
             A3 => 13,
             A4 => 14,
             A5 => 15,
             A6 => 16,
             A7 => 17,
             S2 => 18,
-            S3 => 19, 
-            S4 => 20, 
+            S3 => 19,
+            S4 => 20,
             S5 => 21,
             S6 => 22,
             S7 => 23,
             S8 => 24,
             S9 => 25,
             S10 => 26,
-            S11 => 27, 
-            T3 => 28, 
+            S11 => 27,
+            T3 => 28,
             T4 => 29,
             T5 => 30,
             T6 => 31,
@@ -280,94 +322,265 @@ impl Into<u32> for Reg {
 pub enum I {
     //// One of 40 User mode instructions in the RV32I Base Instruction Set ////
     /// U: Set upper 20 bits to immediate value
-    LUI { d: Reg, im: i32 },
+    LUI {
+        d: Reg,
+        im: i32,
+    },
     /// U: Add upper 20 bits to immediate value in program counter
-    AUIPC { d: Reg, im: i32 },
+    AUIPC {
+        d: Reg,
+        im: i32,
+    },
     /// UJ: Jump and Link Relative
-    JAL { d: Reg, im: i32 },
+    JAL {
+        d: Reg,
+        im: i32,
+    },
     /// I: Jump and Link, Register
-    JALR { d: Reg, s: Reg, im: i16 },
+    JALR {
+        d: Reg,
+        s: Reg,
+        im: i16,
+    },
     /// SB: 12-bit immediate offset Branch on Equal
-    BEQ { s1: Reg, s2: Reg, im: i16 },
+    BEQ {
+        s1: Reg,
+        s2: Reg,
+        im: i16,
+    },
     /// SB: 12-bit immediate offset Branch on Not Equal
-    BNE { s1: Reg, s2: Reg, im: i16 },
+    BNE {
+        s1: Reg,
+        s2: Reg,
+        im: i16,
+    },
     /// SB: 12-bit immediate offset Branch on Less Than
-    BLT { s1: Reg, s2: Reg, im: i16 },
+    BLT {
+        s1: Reg,
+        s2: Reg,
+        im: i16,
+    },
     /// SB: 12-bit immediate offset Branch on Greater Than Or Equal To
-    BGE { s1: Reg, s2: Reg, im: i16 },
+    BGE {
+        s1: Reg,
+        s2: Reg,
+        im: i16,
+    },
     /// SB: 12-bit immediate offset Branch on Less Than (Unsigned)
-    BLTU { s1: Reg, s2: Reg, im: i16 },
+    BLTU {
+        s1: Reg,
+        s2: Reg,
+        im: i16,
+    },
     /// SB: 12-bit immediate offset Branch on Greater Than Or Equal To (Unsigned)
-    BGEU { s1: Reg, s2: Reg, im: i16 },
+    BGEU {
+        s1: Reg,
+        s2: Reg,
+        im: i16,
+    },
     /// I: Load Byte (`R[d]: M[R[s] + im]`)
-    LB { d: Reg, s: Reg, im: i16 },
+    LB {
+        d: Reg,
+        s: Reg,
+        im: i16,
+    },
     /// I: Load Half-Word (`R[d]: M[R[s] + im]`)
-    LH { d: Reg, s: Reg, im: i16 },
+    LH {
+        d: Reg,
+        s: Reg,
+        im: i16,
+    },
     /// I: Load Word (`R[d]: M[R[s] + im]`)
-    LW { d: Reg, s: Reg, im: i16 },
+    LW {
+        d: Reg,
+        s: Reg,
+        im: i16,
+    },
     /// I: Load Byte Unsigned (`R[d]: M[R[s] + im]`)
-    LBU { d: Reg, s: Reg, im: i16 },
+    LBU {
+        d: Reg,
+        s: Reg,
+        im: i16,
+    },
     /// I: Load Half Unsigned (`R[d]: M[R[s] + im]`)
-    LHU { d: Reg, s: Reg, im: i16 },
+    LHU {
+        d: Reg,
+        s: Reg,
+        im: i16,
+    },
     /// S: Store Byte
-    SB { s1: Reg, s2: Reg, im: i16 },
+    SB {
+        s1: Reg,
+        s2: Reg,
+        im: i16,
+    },
     /// S: Store Half Word
-    SH { s1: Reg, s2: Reg, im: i16 },
+    SH {
+        s1: Reg,
+        s2: Reg,
+        im: i16,
+    },
     /// S: Store Word
-    SW { s1: Reg, s2: Reg, im: i16 },
+    SW {
+        s1: Reg,
+        s2: Reg,
+        im: i16,
+    },
     /// I: Add Immediate (`R[d]: R[s] + im`)
-    ADDI { d: Reg, s: Reg, im: i16 },
+    ADDI {
+        d: Reg,
+        s: Reg,
+        im: i16,
+    },
     /// I: Set 1 on Less Than, 0 Otherwise Immediate
-    SLTI { d: Reg, s: Reg, im: i16 },
+    SLTI {
+        d: Reg,
+        s: Reg,
+        im: i16,
+    },
     /// I: Set 1 on Less Than, 0 Otherwise Immediate Unsigned
-    SLTUI { d: Reg, s: Reg, im: i16 },
+    SLTUI {
+        d: Reg,
+        s: Reg,
+        im: i16,
+    },
     /// I: Xor Immediate
-    XORI { d: Reg, s: Reg, im: i16 },
+    XORI {
+        d: Reg,
+        s: Reg,
+        im: i16,
+    },
     /// I: Or Immediate
-    ORI { d: Reg, s: Reg, im: i16 },
+    ORI {
+        d: Reg,
+        s: Reg,
+        im: i16,
+    },
     /// I: And Immediate
-    ANDI { d: Reg, s: Reg, im: i16 },
+    ANDI {
+        d: Reg,
+        s: Reg,
+        im: i16,
+    },
     /// I: Logical Left Shift Immediate
-    SLLI { d: Reg, s: Reg, im: i8 },
+    SLLI {
+        d: Reg,
+        s: Reg,
+        im: i8,
+    },
     /// I: Logical Right Shift Immediate
-    SRLI { d: Reg, s: Reg, im: i8 },
+    SRLI {
+        d: Reg,
+        s: Reg,
+        im: i8,
+    },
     /// I: Arithmetic Shift Right Immediate (See SRA).
-    SRAI { d: Reg, s: Reg, im: i8 },
+    SRAI {
+        d: Reg,
+        s: Reg,
+        im: i8,
+    },
     /// R: Add (`R[d]: R[s1] + R[s2]`)
-    ADD { d: Reg, s1: Reg, s2: Reg },
+    ADD {
+        d: Reg,
+        s1: Reg,
+        s2: Reg,
+    },
     /// R: Subtract (`R[d]: R[s1] - R[s2]`)
-    SUB { d: Reg, s1: Reg, s2: Reg },
+    SUB {
+        d: Reg,
+        s1: Reg,
+        s2: Reg,
+    },
     /// R: Logical Left Shift
-    SLL { d: Reg, s1: Reg, s2: Reg },
+    SLL {
+        d: Reg,
+        s1: Reg,
+        s2: Reg,
+    },
     /// R: Set 1 on Less Than, 0 Otherwise
-    SLT { d: Reg, s1: Reg, s2: Reg },
+    SLT {
+        d: Reg,
+        s1: Reg,
+        s2: Reg,
+    },
     /// R: Set 1 on Less Than, 0 Otherwise Unsigned
-    SLTU { d: Reg, s1: Reg, s2: Reg },
+    SLTU {
+        d: Reg,
+        s1: Reg,
+        s2: Reg,
+    },
     /// R: Xor
-    XOR { d: Reg, s1: Reg, s2: Reg },
+    XOR {
+        d: Reg,
+        s1: Reg,
+        s2: Reg,
+    },
     /// R: Logical Right Shift
-    SRL { d: Reg, s1: Reg, s2: Reg },
+    SRL {
+        d: Reg,
+        s1: Reg,
+        s2: Reg,
+    },
     /// R: Arithmetic Shift Right (Sign Bit Copied Rather Than Filling In Zeros)
-    SRA { d: Reg, s1: Reg, s2: Reg },
+    SRA {
+        d: Reg,
+        s1: Reg,
+        s2: Reg,
+    },
     /// R: Or
-    OR { d: Reg, s1: Reg, s2: Reg },
+    OR {
+        d: Reg,
+        s1: Reg,
+        s2: Reg,
+    },
     /// R: And
-    AND { d: Reg, s1: Reg, s2: Reg },
+    AND {
+        d: Reg,
+        s1: Reg,
+        s2: Reg,
+    },
     /// I: Invoke a system call (Registers defined by ABI, not hardware)
     ECALL {},
     /// I: Debugger Breakpoint
     EBREAK {},
     /// I: Fence (Immediate Is Made Up Of Ordered High Order To Low Order Bits:)
     /// - fm(4), PI(1), PO(1), PR(1), PW(1), SI(1), SO(1), SR(1), SW(1)
-    FENCE { im: i16 },
+    FENCE {
+        im: i16,
+    },
 
     /// CSR
-    CSRRW {csr: i16, s1: Reg, d:Reg},
-    CSRRS {csr: i16, s1: Reg, d:Reg},
-    CSRRC {csr: i16, s1: Reg, d:Reg},
-    CSRRWI {csr: i16, zimm: i16, d:Reg},
-    CSRRSI {csr: i16, zimm: i16, d:Reg},
-    CSRRCI {csr: i16, zimm: i16, d:Reg},
+    CSRRW {
+        csr: i16,
+        s1: Reg,
+        d: Reg,
+    },
+    CSRRS {
+        csr: i16,
+        s1: Reg,
+        d: Reg,
+    },
+    CSRRC {
+        csr: i16,
+        s1: Reg,
+        d: Reg,
+    },
+    CSRRWI {
+        csr: i16,
+        zimm: i16,
+        d: Reg,
+    },
+    CSRRSI {
+        csr: i16,
+        zimm: i16,
+        d: Reg,
+    },
+    CSRRCI {
+        csr: i16,
+        zimm: i16,
+        d: Reg,
+    },
     MRET {},
     //// Multiply Extension ////
 
@@ -564,13 +777,21 @@ impl From<I> for u32 {
             ECALL {} => I::i(0b1110011, ZERO, 0b000, ZERO, 0b000000000000),
             EBREAK {} => I::i(0b1110011, ZERO, 0b000, ZERO, 0b000000000001),
             FENCE { im } => I::i(0b0001111, ZERO, 0b000, ZERO, im),
-            CSRRW {csr, s1, d} => I::i(0b1110011, d, 0b001, s1, csr),
-            CSRRS {csr, s1, d} => I::i(0b1110011, d, 0b010, s1, csr),
-            CSRRC {csr, s1, d} => I::i(0b1110011, d, 0b011, s1, csr),
-            CSRRWI {csr, zimm, d} => I::i(0b1110011, d, 0b101, (zimm as u32).into(), csr),
-            CSRRSI {csr, zimm, d} => I::i(0b1110011, d, 0b110, (zimm as u32).into(), csr),
-            CSRRCI {csr, zimm, d} => I::i(0b1110011, d, 0b111, (zimm as u32).into(), csr),
-            MRET {} => I::i(0b1110011, 0.into(), 0b000, 0b00000.into(), 0b001100000010),
+            CSRRW { csr, s1, d } => I::i(0b1110011, d, 0b001, s1, csr),
+            CSRRS { csr, s1, d } => I::i(0b1110011, d, 0b010, s1, csr),
+            CSRRC { csr, s1, d } => I::i(0b1110011, d, 0b011, s1, csr),
+            CSRRWI { csr, zimm, d } => {
+                I::i(0b1110011, d, 0b101, (zimm as u32).into(), csr)
+            }
+            CSRRSI { csr, zimm, d } => {
+                I::i(0b1110011, d, 0b110, (zimm as u32).into(), csr)
+            }
+            CSRRCI { csr, zimm, d } => {
+                I::i(0b1110011, d, 0b111, (zimm as u32).into(), csr)
+            }
+            MRET {} => {
+                I::i(0b1110011, 0.into(), 0b000, 0b00000.into(), 0b001100000010)
+            }
         }
     }
 }
@@ -653,9 +874,7 @@ impl TryFrom<u32> for I {
                 (d, 0b110, s1, s2, 0b0000000) => OR { d, s1, s2 },
                 (d, 0b111, s1, s2, 0b0000000) => AND { d, s1, s2 },
                 (_, f3, _s, _z, f7) => {
-                    return Err(ConversionError::UnknownFunct3Funct7(
-                        f3, f7,
-                    ))
+                    return Err(ConversionError::UnknownFunct3Funct7(f3, f7))
                 }
             },
             // Load upper immediate
@@ -689,13 +908,37 @@ impl TryFrom<u32> for I {
             0b1110011 => match I::from_i(with) {
                 (ZERO, 0b000, ZERO, 0b000000000000) => ECALL {},
                 (ZERO, 0b000, ZERO, 0b000000000001) => EBREAK {},
-                (ZERO, 0b000, ZERO, 0b001100000010) => MRET{},
-                (d, 0b001, s, csr) => CSRRW {csr:csr, s1: s, d:d},
-                (d, 0b010, s, csr) => CSRRS {csr:csr, s1: s, d:d},
-                (d, 0b011, s, csr) => CSRRC {csr:csr, s1: s, d:d},
-                (d, 0b101, zimm, csr) => CSRRWI {csr:csr, zimm: (<Reg as Into<u32>>::into(zimm) as i16), d:d},
-                (d, 0b110, zimm, csr) => CSRRSI {csr:csr, zimm: (<Reg as Into<u32>>::into(zimm) as i16), d:d},
-                (d, 0b111, zimm, csr) => CSRRCI {csr:csr, zimm: (<Reg as Into<u32>>::into(zimm) as i16), d:d},
+                (ZERO, 0b000, ZERO, 0b001100000010) => MRET {},
+                (d, 0b001, s, csr) => CSRRW {
+                    csr: csr,
+                    s1: s,
+                    d: d,
+                },
+                (d, 0b010, s, csr) => CSRRS {
+                    csr: csr,
+                    s1: s,
+                    d: d,
+                },
+                (d, 0b011, s, csr) => CSRRC {
+                    csr: csr,
+                    s1: s,
+                    d: d,
+                },
+                (d, 0b101, zimm, csr) => CSRRWI {
+                    csr: csr,
+                    zimm: (<Reg as Into<u32>>::into(zimm) as i16),
+                    d: d,
+                },
+                (d, 0b110, zimm, csr) => CSRRSI {
+                    csr: csr,
+                    zimm: (<Reg as Into<u32>>::into(zimm) as i16),
+                    d: d,
+                },
+                (d, 0b111, zimm, csr) => CSRRCI {
+                    csr: csr,
+                    zimm: (<Reg as Into<u32>>::into(zimm) as i16),
+                    d: d,
+                },
                 _ => return Err(ConversionError::UnknownEnvCtrlTransfer),
             },
             o => return Err(ConversionError::UnknownOpcode(o)),
