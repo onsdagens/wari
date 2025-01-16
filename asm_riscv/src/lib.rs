@@ -731,6 +731,22 @@ impl I {
         out
     }
 
+    fn j(opcode: u32, d: Reg, imm: i32) -> u32 {
+        let im: u32 = (imm as u32).into();
+        let d: u32 = (d as u8).into();
+        let mut out = opcode;
+        let imm20 = (im >> 20) & 0b1;
+        let imm101 = (im >> 1) & 0b1111111111;
+        let imm11 = (im >> 11) & 0b1;
+        let imm1912 = (im >> 12) & 0b11111111;
+        out |= d << 7;
+        out |= imm1912 << (7 + 5);
+        out |= imm11 << (7 + 5 + 8);
+        out |= imm101 << (7 + 5 + 8 + 1);
+        out |= imm20 << (7 + 5 + 8 + 1 + 10);
+        out
+    }
+
     /// - im:    20
     /// - dst:    5
     /// - opcode  7
@@ -754,7 +770,7 @@ impl From<I> for u32 {
         match with {
             LUI { d, im } => I::u(0b0110111, d, im),
             AUIPC { d, im } => I::u(0b0010111, d, im),
-            JAL { d, im } => I::u(0b1101111, d, im),
+            JAL { d, im } => I::j(0b1101111, d, im),
             JALR { d, s, im } => I::i(0b1100111, d, 0b000, s, im),
             BEQ { s1, s2, im } => I::b(0b1100011, 0b000, s1, s2, im),
             BNE { s1, s2, im } => I::b(0b1100011, 0b001, s1, s2, im),
