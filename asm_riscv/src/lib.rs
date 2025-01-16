@@ -716,6 +716,21 @@ impl I {
         (funct3, s1, s2, im as i16)
     }
 
+    fn b(opcode: u32, funct3: u32, s1: Reg, s2: Reg, im: i16) -> u32 {
+        let im: u32 = (im as u16).into();
+        let src1: u32 = (s1 as u8).into();
+        let src2: u32 = (s2 as u8).into();
+        let mut out = opcode;
+        let imm_4111 = (((im >> 1) & 0b1111) << 1) | ((im >> 11) & 0b1);
+        let imm_12105 = (((im >> 12) & 0b1) << 6) | ((im >> 5) & 0b111111);
+        out |= imm_4111 << 7;
+        out |= funct3 << 12;
+        out |= src1 << 15;
+        out |= src2 << 20;
+        out |= imm_12105 << 25;
+        out
+    }
+
     /// - im:    20
     /// - dst:    5
     /// - opcode  7
@@ -741,12 +756,12 @@ impl From<I> for u32 {
             AUIPC { d, im } => I::u(0b0010111, d, im),
             JAL { d, im } => I::u(0b1101111, d, im),
             JALR { d, s, im } => I::i(0b1100111, d, 0b000, s, im),
-            BEQ { s1, s2, im } => I::s(0b1100011, 0b000, s1, s2, im),
-            BNE { s1, s2, im } => I::s(0b1100011, 0b001, s1, s2, im),
-            BLT { s1, s2, im } => I::s(0b1100011, 0b100, s1, s2, im),
-            BGE { s1, s2, im } => I::s(0b1100011, 0b101, s1, s2, im),
-            BLTU { s1, s2, im } => I::s(0b1100011, 0b110, s1, s2, im),
-            BGEU { s1, s2, im } => I::s(0b1100011, 0b111, s1, s2, im),
+            BEQ { s1, s2, im } => I::b(0b1100011, 0b000, s1, s2, im),
+            BNE { s1, s2, im } => I::b(0b1100011, 0b001, s1, s2, im),
+            BLT { s1, s2, im } => I::b(0b1100011, 0b100, s1, s2, im),
+            BGE { s1, s2, im } => I::b(0b1100011, 0b101, s1, s2, im),
+            BLTU { s1, s2, im } => I::b(0b1100011, 0b110, s1, s2, im),
+            BGEU { s1, s2, im } => I::b(0b1100011, 0b111, s1, s2, im),
             LB { d, s, im } => I::i(0b0000011, d, 0b000, s, im),
             LH { d, s, im } => I::i(0b0000011, d, 0b001, s, im),
             LW { d, s, im } => I::i(0b0000011, d, 0b010, s, im),
